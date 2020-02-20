@@ -2,17 +2,12 @@
 #include <vector>
 #include <algorithm>
 #include <utility>
+#include <unordered_map>
 
 typedef long long ll;
 
-struct comp
-{
-    bool operator()(const Lib &l1, const Lib &l2)
-    {
-        // eq -> false, lt -> true
-        return l1.T < l2.T;
-    }
-};
+ll score = 0;
+std::unordered_map<ll, bool> was_used;
 
 struct Lib
 {
@@ -20,10 +15,21 @@ struct Lib
     ll N;
     ll T;
     ll M;
-    std::vector<ll> books;
-    Lib(ll _id, ll _N, ll _T, ll _M, std::vector<ll> &_books) : id(_id), N(_N), T(_T), M(_M)
+    // vector of (score, id)
+    std::vector<std::pair<ll, ll>> books;
+    Lib() {}
+    Lib(ll _id, ll _N, ll _T, ll _M, std::vector<std::pair<ll, ll>> &_books) : id(_id), N(_N), T(_T), M(_M)
     {
         books = std::move(_books);
+    }
+};
+
+struct comp
+{
+    bool operator()(const Lib &l1, const Lib &l2)
+    {
+        // eq -> false, lt -> true
+        return l1.T < l2.T;
     }
 };
 
@@ -36,7 +42,13 @@ std::vector<ll> use_books(const Lib &lib, ll day, const std::vector<ll> scores, 
     {
         if (books_taken < (end_day - day) * (lib.M))
         {
-            book_ids.push_back(book);
+            //if (std::find(was_used.begin(), was_used.end(), book.second) == was_used.end())
+            if (was_used.find(book.second) == was_used.end())
+            {
+                book_ids.push_back(book.second);
+                score += book.first;
+                was_used[book.second] = true;
+            }
         }
         else
         {
@@ -61,11 +73,14 @@ int main()
     {
         ll N, T, M;
         std::cin >> N >> T >> M;
-        std::vector<ll> books(N);
+        std::vector<std::pair<ll, ll>> books(N);
         for (ll j = 0; j < N; j++)
         {
-            std::cin >> books[j];
+            ll tmp;
+            std::cin >> tmp;
+            books[j] = std::make_pair(S[tmp], tmp);
         }
+        std::sort(books.begin(), books.end());
         libs[i] = Lib(i, N, T, M, books);
     }
     std::sort(libs.begin(), libs.end(), comp());
@@ -96,4 +111,5 @@ int main()
         }
         std::cout << std::endl;
     }
+    std::cerr << "SCORE: " << score << std::endl;
 }

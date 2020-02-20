@@ -1,6 +1,6 @@
 g++ siemaeniu.cpp
 
-for i in *.in; do
+for i in *.txt; do
     desired=".out"
-    ./a.out < $i > "${i/.in/$desired}" 
+    ./a.out < $i > "${i/.txt/$desired}" 
 done
